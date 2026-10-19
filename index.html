@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>QRoll</title>
+<meta name="theme-color" content="#613627">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head><body>
+<header class="top">
+<svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><rect x="3" y="7" width="34" height="26" rx="2" fill="#613627"/><g fill="#F2EDE8"><rect x="6" y="9.5" width="3" height="2.2"/><rect x="12" y="9.5" width="3" height="2.2"/><rect x="18" y="9.5" width="3" height="2.2"/><rect x="24" y="9.5" width="3" height="2.2"/><rect x="30" y="9.5" width="3" height="2.2"/><rect x="6" y="28.3" width="3" height="2.2"/><rect x="12" y="28.3" width="3" height="2.2"/><rect x="18" y="28.3" width="3" height="2.2"/><rect x="24" y="28.3" width="3" height="2.2"/><rect x="30" y="28.3" width="3" height="2.2"/></g><rect x="9" y="14" width="22" height="12" fill="#E19E4E"/><path d="M12 17h4v4h-4zM24 17h4v4h-4zM18 22h4v3h-4z" fill="#613627"/></svg>
+<h1>QRoll</h1></header>
+<div class="perf"></div>
+<main>
+<section id="v-classes" class="view">
+ <div class="glance card"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cal"/></svg><div><b>Your day at a glance</b><span id="glance">0 classes · 0 students</span></div></div>
+ <h2>Your classes</h2>
+ <div id="list"></div>
+ <div id="empty" class="empty" hidden><b>No classes yet</b><p>Tap Add Class to create your first class.</p></div>
+ <button class="btn primary" id="add">+ Add Class</button>
+</section>
+<section id="v-form" class="view" hidden>
+ <h2 id="ftitle" class="big">Add Class</h2>
+ <label for="code">Class code *</label><input id="code" placeholder="e.g. CS 101" autocomplete="off">
+ <label for="name">Class name *</label><input id="name" placeholder="e.g. Introduction to Programming" autocomplete="off">
+ <button class="btn primary" id="save">Save Class</button>
+ <button class="btn ghost" id="cancel">Cancel</button>
+</section>
+<section id="v-detail" class="view" hidden>
+ <div class="card detail"><span id="dcode"></span><h2 id="dname" class="big"></h2><span id="dcount"></span></div>
+ <button class="btn ghost" id="edit">Edit Class</button>
+ <button class="btn danger" id="remove">Remove Class</button>
+ <button class="btn ghost" id="back">Back to classes</button>
+</section>
+<section id="v-dash" class="view" hidden><h2 class="big">Dashboard</h2><div class="card soon">Attendance numbers will appear here once scanning is built.</div></section>
+<section id="v-scan" class="view" hidden><h2 class="big">Scan attendance</h2><div class="card soon">Live QR scanning comes in a later stage.</div></section>
+</main>
+<nav>
+<button data-nav="classes" class="on"><svg viewBox="0 0 24 24"><use href="#i-class"/></svg>Classes</button>
+<button data-nav="dash"><svg viewBox="0 0 24 24"><use href="#i-bars"/></svg>Dashboard</button>
+<button data-nav="scan"><svg viewBox="0 0 24 24"><use href="#i-scan"/></svg>Scan</button>
+</nav>
+<div id="toast" role="status"></div>
+<dialog id="dlg"><p id="dmsg"></p><div class="row"><button class="btn ghost" id="dno">Cancel</button><button class="btn danger" id="dyes">Remove</button></div></dialog>
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="i-cal" viewBox="0 0 24 24"><path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-class" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5zM6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+<symbol id="i-bars" viewBox="0 0 24 24"><path d="M5 20V11M12 20V4M19 20v-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+<symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 8V5h3M17 4h3v4M20 16v3h-3M7 20H4v-4M7 12h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-go" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</defs></svg>
+<script src="app.js"></script>
+</body></html>
