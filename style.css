@@ -47,3 +47,25 @@ dialog::backdrop{background:rgba(97,54,39,.45)}
 .row{display:flex;gap:10px}.row .btn{margin-top:8px}
 button:focus-visible,input:focus-visible{outline:3px solid var(--mug);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){#toast{transition:none}}
+.logo{height:52px;width:auto}
+.perf{height:16px;background:url(assets/film_strip.png) repeat-x 0 0/auto 100%}
+.btn img{width:20px;height:20px;vertical-align:-4px}
+.btn{text-align:center;line-height:48px}
+nav img{width:26px;height:26px}
+.ic{width:28px;height:28px}
+.go img,.ib img{width:24px;height:24px}
+.ib{flex:none;width:44px;height:44px;border:0;background:none}
+.stu{display:flex;align-items:center;margin-bottom:8px;padding:8px 4px 8px 12px}
+.stu .info{flex:1}
+select{width:100%;height:52px;padding:0 10px;border:2px solid var(--cosy);background:var(--cream);color:var(--cocoa);font:400 16px Jost,sans-serif}
+.cam{background:var(--cocoa);margin-top:10px;aspect-ratio:4/3;overflow:hidden}
+.cam video{width:100%;height:100%;object-fit:cover}
+.res{margin-top:10px;padding:12px;background:var(--cream);font-weight:600}
+.res.ok{background:var(--spr)}.res.warn{background:var(--cream);border:2px solid var(--mug)}.res.bad{background:var(--cocoa);color:var(--bg)}
+.cnt{margin-top:8px;font-weight:600}
+.rv{display:flex;align-items:center;gap:10px;margin:6px 0}.rv span{flex:1}.rv select{width:128px;height:44px}
+small{display:block}
+.bar{display:grid;grid-template-columns:76px 1fr 44px;gap:8px;align-items:center;margin:6px 0}
+.bar u{display:block;height:14px;background:var(--cream)}.bar i{display:block;height:100%;background:var(--mug)}.bar b{text-align:right}
+.bigtxt b{font:400 40px "Abril Fatface",serif}
+#qd{text-align:center}#qd img{width:100%;max-width:260px}

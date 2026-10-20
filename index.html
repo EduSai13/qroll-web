@@ -1,53 +1,73 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>QRoll</title>
-<meta name="theme-color" content="#613627">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css">
+<title>QRoll</title><meta name="theme-color" content="#613627">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="stylesheet" href="style.css">
 </head><body>
-<header class="top">
-<svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><rect x="3" y="7" width="34" height="26" rx="2" fill="#613627"/><g fill="#F2EDE8"><rect x="6" y="9.5" width="3" height="2.2"/><rect x="12" y="9.5" width="3" height="2.2"/><rect x="18" y="9.5" width="3" height="2.2"/><rect x="24" y="9.5" width="3" height="2.2"/><rect x="30" y="9.5" width="3" height="2.2"/><rect x="6" y="28.3" width="3" height="2.2"/><rect x="12" y="28.3" width="3" height="2.2"/><rect x="18" y="28.3" width="3" height="2.2"/><rect x="24" y="28.3" width="3" height="2.2"/><rect x="30" y="28.3" width="3" height="2.2"/></g><rect x="9" y="14" width="22" height="12" fill="#E19E4E"/><path d="M12 17h4v4h-4zM24 17h4v4h-4zM18 22h4v3h-4z" fill="#613627"/></svg>
-<h1>QRoll</h1></header>
+<header class="top"><img class="logo" src="assets/logo.png" alt="QRoll attendance tracker"></header>
 <div class="perf"></div>
 <main>
 <section id="v-classes" class="view">
- <div class="glance card"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cal"/></svg><div><b>Your day at a glance</b><span id="glance">0 classes · 0 students</span></div></div>
- <h2>Your classes</h2>
- <div id="list"></div>
+ <div class="glance card"><img class="ic" src="icons/cal.png" alt=""><div><b>Your day at a glance</b><span id="glance"></span></div></div>
+ <h2>Your classes</h2><div id="list"></div>
  <div id="empty" class="empty" hidden><b>No classes yet</b><p>Tap Add Class to create your first class.</p></div>
- <button class="btn primary" id="add">+ Add Class</button>
+ <button class="btn primary" id="add"><img src="icons/add.png" alt=""> Add Class</button>
 </section>
 <section id="v-form" class="view" hidden>
- <h2 id="ftitle" class="big">Add Class</h2>
- <label for="code">Class code *</label><input id="code" placeholder="e.g. CS 101" autocomplete="off">
- <label for="name">Class name *</label><input id="name" placeholder="e.g. Introduction to Programming" autocomplete="off">
- <button class="btn primary" id="save">Save Class</button>
- <button class="btn ghost" id="cancel">Cancel</button>
+ <h2 id="ftitle" class="big"></h2>
+ <label for="code">Class code *</label><input id="code" placeholder="e.g. 10-Newton" autocomplete="off">
+ <label for="name">Class name *</label><input id="name" placeholder="e.g. Science 10" autocomplete="off">
+ <button class="btn primary" id="save"></button><button class="btn ghost" id="cancel">Cancel</button>
 </section>
 <section id="v-detail" class="view" hidden>
  <div class="card detail"><span id="dcode"></span><h2 id="dname" class="big"></h2><span id="dcount"></span></div>
- <button class="btn ghost" id="edit">Edit Class</button>
- <button class="btn danger" id="remove">Remove Class</button>
- <button class="btn ghost" id="back">Back to classes</button>
+ <div class="row"><button class="btn ghost" id="edit"><img src="icons/edit.png" alt=""> Edit</button><button class="btn danger" id="remove"><img src="icons/del.png" alt=""> Remove</button></div>
+ <h2>Students</h2><input id="q" type="search" placeholder="Search name or student number">
+ <div id="slist"></div><div id="semp" class="empty" hidden><b>No students yet</b><p>Tap Add Student to build this roster.</p></div>
+ <button class="btn primary" id="sadd"><img src="icons/add.png" alt=""> Add Student</button>
+ <button class="btn ghost" id="back"><img src="icons/back.png" alt=""> Back to classes</button>
 </section>
-<section id="v-dash" class="view" hidden><h2 class="big">Dashboard</h2><div class="card soon">Attendance numbers will appear here once scanning is built.</div></section>
-<section id="v-scan" class="view" hidden><h2 class="big">Scan attendance</h2><div class="card soon">Live QR scanning comes in a later stage.</div></section>
+<section id="v-sform" class="view" hidden>
+ <h2 id="sftitle" class="big"></h2>
+ <label for="sname">Full name *</label><input id="sname" autocomplete="off">
+ <label for="snum">Student number *</label><input id="snum" autocomplete="off">
+ <button class="btn primary" id="ssave"></button><button class="btn ghost" id="scancel">Cancel</button>
+</section>
+<section id="v-scan" class="view" hidden>
+ <h2 class="big">Scan attendance</h2>
+ <div id="sempty" class="empty" hidden><b>No classes yet</b><p>Create a class and add students first.</p></div>
+ <div id="ssetup">
+  <label for="sclass">Class</label><select id="sclass"></select>
+  <label for="sstart">First period starts</label><input id="sstart" type="time" value="07:30">
+  <label for="sgrace">Minutes allowed before Late</label><input id="sgrace" type="number" min="0" value="15">
+  <button class="btn primary" id="sbegin">Start scanning</button>
+ </div>
+ <div id="slive" hidden>
+  <div id="sinfo" class="card"></div>
+  <div class="cam"><video id="vid" muted playsinline></video><canvas id="cv" hidden></canvas></div>
+  <div id="res" class="res">Point the camera at a student's QR code.</div>
+  <div id="cnt" class="cnt"></div>
+  <h2>Recent scans</h2><div id="recent"></div>
+  <button class="btn ghost" id="srev">Review roster</button>
+  <div id="rev" hidden><div id="rlist"></div><button class="btn danger" id="sclose">Finish and close session</button></div>
+ </div>
+</section>
+<section id="v-dash" class="view" hidden>
+ <h2 class="big">Dashboard</h2><div id="dbody"></div>
+ <h2>Export and backup</h2>
+ <button class="btn ghost" id="xs">Export students (CSV)</button>
+ <button class="btn ghost" id="xa">Export attendance (CSV)</button>
+ <button class="btn ghost" id="xb">Back up all data (JSON)</button>
+ <label class="btn ghost" for="rf">Restore from backup</label><input type="file" id="rf" accept=".json,application/json" hidden>
+</section>
 </main>
 <nav>
-<button data-nav="classes" class="on"><svg viewBox="0 0 24 24"><use href="#i-class"/></svg>Classes</button>
-<button data-nav="dash"><svg viewBox="0 0 24 24"><use href="#i-bars"/></svg>Dashboard</button>
-<button data-nav="scan"><svg viewBox="0 0 24 24"><use href="#i-scan"/></svg>Scan</button>
+<button data-nav="classes"><img src="icons/classes_off.png" alt="">Classes</button>
+<button data-nav="dash"><img src="icons/dash_off.png" alt="">Dashboard</button>
+<button data-nav="scan"><img src="icons/scan_off.png" alt="">Scan</button>
 </nav>
 <div id="toast" role="status"></div>
-<dialog id="dlg"><p id="dmsg"></p><div class="row"><button class="btn ghost" id="dno">Cancel</button><button class="btn danger" id="dyes">Remove</button></div></dialog>
-<svg width="0" height="0" style="position:absolute"><defs>
-<symbol id="i-cal" viewBox="0 0 24 24"><path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
-<symbol id="i-class" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5zM6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
-<symbol id="i-bars" viewBox="0 0 24 24"><path d="M5 20V11M12 20V4M19 20v-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
-<symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 8V5h3M17 4h3v4M20 16v3h-3M7 20H4v-4M7 12h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-<symbol id="i-go" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-</defs></svg>
-<script src="app.js"></script>
+<dialog id="dlg"><p id="dmsg"></p><div class="row"><button class="btn ghost" id="dno">Cancel</button><button class="btn danger" id="dyes"></button></div></dialog>
+<dialog id="qd"><img id="qimg" alt="Student QR code"><p id="qcap"></p><a id="qdl" class="btn primary">Download PNG</a><div class="row"><button class="btn ghost" id="qsh">Share</button><button class="btn ghost" id="qx">Close</button></div></dialog>
+<script src="lib/qrcode.js"></script><script src="lib/jsQR.js"></script><script src="app.js"></script>
 </body></html>
