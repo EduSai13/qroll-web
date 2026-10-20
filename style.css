@@ -1,72 +1,93 @@
 @font-face{font-family:Jost;font-weight:400;src:url(fonts/jost-latin-400-normal.woff2) format("woff2")}
 @font-face{font-family:Jost;font-weight:600;src:url(fonts/jost-latin-600-normal.woff2) format("woff2")}
 @font-face{font-family:"Abril Fatface";src:url(fonts/abril-fatface-latin-400-normal.woff2) format("woff2")}
+
 :root{--cocoa:#613627;--bg:#F2EDE8;--cosy:#B78C6E;--mug:#E19E4E;--cream:#F5EADD;--spr:#FCD8A2}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%}
-body{background:var(--bg);color:var(--cocoa);font:400 16px/1.4 Jost,system-ui,sans-serif;display:flex;flex-direction:column;max-width:520px;margin:0 auto;padding-top:env(safe-area-inset-top)}
-.top{display:flex;align-items:center;gap:10px;padding:10px 16px}
-.logo{width:40px;height:40px}
-h1{font:400 28px "Abril Fatface",serif;margin:0}
-h2{font:600 18px Jost,sans-serif;margin:18px 0 8px}
-h2.big{font:400 26px "Abril Fatface",serif;margin:12px 0 14px}
-.perf{height:12px;background:radial-gradient(circle,var(--bg) 3px,transparent 3.5px) 0 0/16px 12px,var(--cosy)}
-main{flex:1;overflow-y:auto;padding:0 16px 16px}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100dvh;color:var(--cocoa);font:400 16px/1.4 Jost,system-ui,sans-serif;background:var(--bg) radial-gradient(var(--spr) 1.2px,transparent 1.5px) 0 0/24px 24px;display:grid;grid-template-rows:auto auto 1fr;grid-template-areas:"top" "perf" "main";padding:env(safe-area-inset-top) 0 calc(96px + env(safe-area-inset-bottom))}
 [hidden]{display:none!important}
-.card{background:var(--cream);padding:12px}
-.glance{display:flex;gap:10px;align-items:center;margin-top:14px}
-.glance div{display:flex;flex-direction:column}
-.ic{width:28px;height:28px;flex:none}
-.class{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-.frame{flex:none;width:56px;height:56px;background:var(--spr);display:grid;place-items:center;font:400 22px "Abril Fatface",serif}
-.info{flex:1;min-width:0;display:flex;flex-direction:column}
-.info small{font-size:13px;font-weight:600}
-.info b{font-size:17px;font-weight:600;overflow-wrap:anywhere}
-.go{flex:none;width:48px;height:48px;border:0;background:none;color:var(--cocoa)}
-.go svg{width:24px;height:24px}
-.empty{padding:28px 8px;text-align:center}
-.empty b{font-size:18px}
-.empty p{margin:4px 0 0}
-.btn{display:block;width:100%;height:52px;margin-top:12px;border:2px solid transparent;font:600 16px Jost,sans-serif;color:var(--cocoa)}
-.primary{background:var(--mug)}
-.ghost{background:var(--cream);border-color:var(--cosy)}
-.danger{background:var(--cocoa);color:var(--bg)}
-label{display:block;margin:14px 0 4px;font-weight:600}
-input{width:100%;height:52px;padding:0 12px;border:2px solid var(--cosy);background:var(--cream);color:var(--cocoa);font:400 16px Jost,sans-serif}
-.detail{display:flex;flex-direction:column}
-.detail span{font-weight:600}
-.soon{margin-top:8px}
-nav{display:flex;background:var(--cream);padding:6px 6px calc(6px + env(safe-area-inset-bottom));border-top:2px solid var(--cosy)}
-nav button{flex:1;height:60px;border:0;background:none;color:var(--cocoa);font:600 13px Jost,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
-nav button.on{background:var(--spr)}
-nav svg{width:26px;height:26px}
-#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--cocoa);color:var(--bg);padding:10px 16px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s}
-#toast.show{opacity:1}
-dialog{border:2px solid var(--cosy);background:var(--bg);color:var(--cocoa);max-width:340px;padding:18px}
-dialog::backdrop{background:rgba(97,54,39,.45)}
-.row{display:flex;gap:10px}.row .btn{margin-top:8px}
-button:focus-visible,input:focus-visible{outline:3px solid var(--mug);outline-offset:2px}
-@media(prefers-reduced-motion:reduce){#toast{transition:none}}
-.logo{height:52px;width:auto}
-.perf{height:16px;background:url(assets/film_strip.png) repeat-x 0 0/auto 100%}
-.btn img{width:20px;height:20px;vertical-align:-4px}
-.btn{text-align:center;line-height:48px}
-nav img{width:26px;height:26px}
-.ic{width:28px;height:28px}
-.go img,.ib img{width:24px;height:24px}
-.ib{flex:none;width:44px;height:44px;border:0;background:none}
-.stu{display:flex;align-items:center;margin-bottom:8px;padding:8px 4px 8px 12px}
-.stu .info{flex:1}
-select{width:100%;height:52px;padding:0 10px;border:2px solid var(--cosy);background:var(--cream);color:var(--cocoa);font:400 16px Jost,sans-serif}
-.cam{background:var(--cocoa);margin-top:10px;aspect-ratio:4/3;overflow:hidden}
-.cam video{width:100%;height:100%;object-fit:cover}
-.res{margin-top:10px;padding:12px;background:var(--cream);font-weight:600}
-.res.ok{background:var(--spr)}.res.warn{background:var(--cream);border:2px solid var(--mug)}.res.bad{background:var(--cocoa);color:var(--bg)}
-.cnt{margin-top:8px;font-weight:600}
-.rv{display:flex;align-items:center;gap:10px;margin:6px 0}.rv span{flex:1}.rv select{width:128px;height:44px}
 small{display:block}
-.bar{display:grid;grid-template-columns:76px 1fr 44px;gap:8px;align-items:center;margin:6px 0}
-.bar u{display:block;height:14px;background:var(--cream)}.bar i{display:block;height:100%;background:var(--mug)}.bar b{text-align:right}
-.bigtxt b{font:400 40px "Abril Fatface",serif}
-#qd{text-align:center}#qd img{width:100%;max-width:260px}
-textarea{width:100%;padding:10px 12px;border:2px solid var(--cosy);background:var(--cream);color:var(--cocoa);font:400 15px Jost,sans-serif}
+.top{grid-area:top;display:flex;align-items:center;padding:8px 16px}
+.logo{height:56px;width:auto;transition:transform .3s}.logo:hover{animation:wig .6s}
+.perf{grid-area:perf;height:16px;background:url(assets/film_strip.png) repeat-x 0 0/auto 100%;animation:roll 14s linear infinite}
+main{grid-area:main;width:100%;max-width:1100px;margin:0 auto;padding:6px 16px 24px}
+h2{font:600 18px Jost,sans-serif;margin:18px 0 8px}
+h2.big{font:400 28px "Abril Fatface",serif;margin:12px 0 14px}
+.view{animation:in .4s cubic-bezier(.2,.9,.3,1.1)}
+.card{background:var(--cream);border:2px solid var(--cocoa);border-radius:18px;box-shadow:0 4px 0 var(--cosy);padding:12px}
+.glance{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--spr);margin-top:12px}
+.glance div{display:flex;flex-direction:column}.glance b{font:400 22px "Abril Fatface",serif}
+#list,#slist{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.class,.stu{display:flex;align-items:center;gap:12px;animation:pop .45s both;animation-delay:calc(var(--i,0)*55ms);transition:transform .2s}
+.class:hover,.stu:hover{transform:translateY(-3px) rotate(-.4deg)}
+.frame{flex:none;position:relative;width:60px;height:64px;display:grid;place-items:center;background:var(--spr);border:2px solid var(--cocoa);border-radius:8px;font:400 22px "Abril Fatface",serif}
+.frame::before,.frame::after{content:"";position:absolute;top:5px;bottom:5px;width:4px;background:radial-gradient(circle,var(--cocoa) 1.4px,transparent 1.9px) 0 0/4px 8px repeat-y}
+.frame::before{left:3px}.frame::after{right:3px}
+.class:nth-child(3n+2) .frame{background:var(--mug)}.class:nth-child(3n) .frame{background:var(--bg)}
+.info{flex:1;min-width:0;display:flex;flex-direction:column}.info small{font-size:13px;font-weight:600}.info b{font-size:17px;font-weight:600;overflow-wrap:anywhere}
+.go,.ib{flex:none;width:46px;height:46px;border:0;background:none;border-radius:50%;transition:transform .15s,background .15s}
+.go:hover,.ib:hover{background:var(--spr);transform:scale(1.12)}.go:active,.ib:active{transform:scale(.9)}
+.go img,.ib img{width:24px;height:24px}
+.empty{padding:28px 8px;text-align:center}.empty b{font:400 22px "Abril Fatface",serif}
+.btn{display:block;width:100%;height:52px;margin-top:14px;border:2px solid var(--cocoa);border-radius:16px;box-shadow:0 4px 0 var(--cocoa);font:600 16px/48px Jost,sans-serif;text-align:center;color:var(--cocoa);transition:transform .1s,box-shadow .1s;cursor:pointer}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--cocoa)}.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--cocoa)}
+.btn img{width:20px;height:20px;vertical-align:-4px}
+.sm{width:auto;height:46px;margin:0;padding:0 16px;line-height:42px;flex:none}
+.primary{background:var(--mug)}.ghost{background:var(--cream)}.danger{background:var(--cocoa);color:var(--bg)}
+.row{display:flex;gap:10px}.row .btn{margin-top:14px}
+label{display:block;margin:14px 0 4px;font-weight:600}
+input,select,textarea{width:100%;height:52px;padding:0 14px;border:2px solid var(--cocoa);border-radius:14px;background:var(--cream);color:var(--cocoa);font:400 16px Jost,sans-serif}
+#v-form,#v-sform,#ssetup,#v-detail .detail{max-width:560px}
+.detail{display:flex;flex-direction:column}.detail span{font-weight:600}
+nav{position:fixed;z-index:5;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(92vw,420px);display:flex;gap:4px;padding:6px;background:var(--cream);border:2px solid var(--cocoa);border-radius:999px;box-shadow:0 5px 0 var(--cocoa)}
+nav button{flex:1;height:58px;border:0;border-radius:999px;background:none;color:var(--cocoa);font:600 13px Jost,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;transition:background .25s,transform .15s}
+nav button.on{background:var(--spr)}nav button.on img{animation:bop .5s}nav button:active{transform:scale(.94)}
+nav img{width:26px;height:26px}
+.cam{position:relative;aspect-ratio:4/3;margin-top:10px;background:var(--cocoa);border:2px solid var(--cocoa);border-radius:22px;overflow:hidden}
+.cam video{width:100%;height:100%;object-fit:cover}
+.fr{position:absolute;width:38px;height:38px;border:5px solid var(--mug);animation:breathe 2s ease-in-out infinite}
+.tl{top:16px;left:16px;border-right:0;border-bottom:0;border-radius:12px 0 0 0}.tr{top:16px;right:16px;border-left:0;border-bottom:0;border-radius:0 12px 0 0}
+.bl{bottom:16px;left:16px;border-right:0;border-top:0;border-radius:0 0 0 12px}.br{bottom:16px;right:16px;border-left:0;border-top:0;border-radius:0 0 12px 0}
+.line{position:absolute;left:14%;right:14%;height:3px;background:var(--mug);box-shadow:0 0 14px var(--mug);animation:sweep 2.2s ease-in-out infinite alternate}
+.rec{position:absolute;top:14px;left:50%;transform:translateX(-50%);color:var(--bg);font:600 12px Jost;letter-spacing:.14em}
+.rec::before{content:"";display:inline-block;width:9px;height:9px;margin-right:6px;border-radius:50%;background:var(--mug);animation:blink 1s steps(2) infinite}
+.cam.hit{animation:flash .7s}
+.res{margin-top:12px;padding:12px;border:2px solid var(--cocoa);border-radius:14px;background:var(--cream);font-weight:600;animation:pop .3s}
+.res.ok{background:var(--spr)}.res.warn{border-color:var(--mug)}.res.bad{background:var(--cocoa);color:var(--bg)}
+.cnt{margin-top:10px;font:400 22px "Abril Fatface",serif;letter-spacing:.04em}
+.rv{display:flex;align-items:center;gap:10px;margin:6px 0}.rv span{flex:1}.rv select{width:132px;height:44px}
+#slive{display:grid;gap:0 18px}
+.bar{display:grid;grid-template-columns:76px 1fr 46px;gap:8px;align-items:center;margin:8px 0}
+.bar u{display:block;height:16px;border:2px solid var(--cocoa);border-radius:99px;background:var(--cream);overflow:hidden}
+.bar i{display:block;height:100%;width:var(--w);background:var(--mug);animation:grow .9s cubic-bezier(.2,.8,.2,1) both}.bar b{text-align:right}
+.bigtxt b{font:400 48px "Abril Fatface",serif}
+#toast{position:fixed;left:50%;bottom:104px;transform:translateX(-50%) translateY(20px);z-index:9;background:var(--cocoa);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .3s cubic-bezier(.2,1.4,.4,1)}
+#toast.show{opacity:1;transform:translateX(-50%)}
+dialog{border:2px solid var(--cocoa);border-radius:22px;background:var(--bg);color:var(--cocoa);max-width:360px;padding:18px;box-shadow:0 6px 0 var(--cocoa)}
+dialog[open]{animation:pop .3s}dialog::backdrop{background:rgba(97,54,39,.5)}
+#qd{text-align:center}#qd::before{content:"";display:block;height:16px;margin:-18px -18px 12px;background:url(assets/film_strip.png) repeat-x 0 0/auto 100%}
+#qd img{width:100%;max-width:260px;border:2px solid var(--cocoa);border-radius:10px;background:#fff}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--mug);outline-offset:2px}
+@keyframes in{from{opacity:0;transform:translateY(16px)}}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.95)}}
+@keyframes roll{to{background-position-x:160px}}
+@keyframes bop{40%{transform:scale(1.3) rotate(-8deg)}}
+@keyframes wig{25%{transform:rotate(-4deg)}75%{transform:rotate(4deg)}}
+@keyframes breathe{50%{transform:scale(1.1)}}
+@keyframes sweep{from{top:18%}to{top:80%}}
+@keyframes blink{50%{opacity:.2}}
+@keyframes flash{0%{box-shadow:0 0 0 0 var(--mug)}100%{box-shadow:0 0 0 22px transparent}}
+@keyframes grow{from{width:0}}
+@media(min-width:900px){
+ body{grid-template-columns:270px 1fr;grid-template-rows:auto 1fr;grid-template-areas:"top main" "nav main";padding:0}
+ body::before{content:"";position:fixed;top:0;bottom:0;left:252px;width:18px;background:radial-gradient(circle at 9px 11px,var(--bg) 3.5px,transparent 4px) 0 0/18px 22px,var(--cosy)}
+ .perf{display:none}.top{padding:24px 24px 8px}.logo{height:110px}
+ nav{grid-area:nav;position:sticky;top:16px;left:auto;bottom:auto;transform:none;width:auto;flex-direction:column;margin:8px 34px 0 16px;border-radius:24px;align-self:start}
+ nav button{flex-direction:row;justify-content:flex-start;gap:12px;height:54px;padding:0 18px;font-size:15px}
+ main{padding:24px 32px 40px;margin:0 auto 0 0}
+ #toast{bottom:28px}
+ #slive{grid-template-columns:1.3fr 1fr;align-items:start}#slive>*{grid-column:2}#slive>#sinfo{grid-column:1/-1}#slive>.cam{grid-column:1;grid-row:2/span 7}
+ .bigtxt b{font-size:64px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}

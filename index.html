@@ -8,7 +8,7 @@
 <div class="perf"></div>
 <main>
 <section id="v-classes" class="view">
- <div class="glance card"><img class="ic" src="icons/cal.png" alt=""><div><b>Your day at a glance</b><span id="glance"></span></div></div>
+ <div class="glance card"><div><small id="hello"></small><b>Your day at a glance</b><span id="glance"></span></div><button class="btn primary sm" data-nav="scan">Scan now</button></div>
  <h2>Your classes</h2><div id="list"></div>
  <div id="empty" class="empty" hidden><b>No classes yet</b><p>Tap Add Class to create your first class.</p></div>
  <button class="btn primary" id="add"><img src="icons/add.png" alt=""> Add Class</button>
@@ -44,7 +44,7 @@
  </div>
  <div id="slive" hidden>
   <div id="sinfo" class="card"></div>
-  <div class="cam"><video id="vid" muted playsinline></video><canvas id="cv" hidden></canvas></div>
+  <div class="cam"><video id="vid" muted playsinline></video><canvas id="cv" hidden></canvas><i class="fr tl"></i><i class="fr tr"></i><i class="fr bl"></i><i class="fr br"></i><b class="line"></b><span class="rec">ROLLING</span></div>
   <div id="res" class="res">Point the camera at a student's QR code.</div>
   <div id="cnt" class="cnt"></div>
   <h2>Recent scans</h2><div id="recent"></div>

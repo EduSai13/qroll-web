@@ -31,15 +31,15 @@ const V=["classes","form","detail","sform","scan","dash"],R={classes:render,deta
 const upOf=()=>({form:editC?"detail":"classes",detail:"classes",sform:"detail"})[cur];
 function go(v,push=true){if(cur==="scan"&&v!=="scan")stop();cur=v;V.forEach(n=>$("#v-"+n).hidden=n!==v);
  const tab=["form","detail","sform"].includes(v)?"classes":v;$$("nav button").forEach(b=>{const on=b.dataset.nav===tab;b.classList.toggle("on",on);b.querySelector("img").src=`icons/${b.dataset.nav}_${on?"on":"off"}.png`});
- if(push&&upOf())history.pushState({v},"");R[v]&&R[v]();$("main").scrollTop=0}
+ if(push&&upOf())history.pushState({v},"");R[v]&&R[v]();scrollTo(0,0)}
 function back(){if(history.state&&history.state.v)history.back();else go(upOf()||"classes",false)}
 function ask(msg,ok,yes="Remove"){$("#dmsg").textContent=msg;$("#dyes").textContent=yes;dlgOk=ok;$("#dlg").showModal()}
 function render(){const L=active();let t=0;
- $("#list").innerHTML=L.map((c,i)=>{const n=roster(c.id).length;t+=n;return `<div class="class card"><div class="frame">${String(i+1).padStart(2,"0")}</div><div class="info"><small>${esc(c.code)}</small><b>${esc(c.name)}</b><small>${pl(n,"student")}</small></div><button class="go" data-open="${c.id}" aria-label="Open ${esc(c.name)}"><img src="icons/go.png" alt=""></button></div>`}).join("");
- $("#empty").hidden=L.length>0;$("#glance").textContent=`${L.length} ${L.length===1?"class":"classes"} · ${pl(t,"student")}`}
+ $("#list").innerHTML=L.map((c,i)=>{const n=roster(c.id).length;t+=n;return `<div class="class card" style="--i:${i}"><div class="frame">${String(i+1).padStart(2,"0")}</div><div class="info"><small>${esc(c.code)}</small><b>${esc(c.name)}</b><small>${pl(n,"student")}</small></div><button class="go" data-open="${c.id}" aria-label="Open ${esc(c.name)}"><img src="icons/go.png" alt=""></button></div>`}).join("");
+ $("#empty").hidden=L.length>0;{const h=new Date().getHours();$("#hello").textContent=(h<12?"Good morning":h<18?"Good afternoon":"Good evening")+" · "+new Date().toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})}$("#glance").textContent=`${L.length} ${L.length===1?"class":"classes"} · ${pl(t,"student")}`}
 function renderD(){const c=db.classes[curC];if(!c)return go("classes",false);$("#dcode").textContent=c.code;$("#dname").textContent=c.name;const all=roster(curC),q=$("#q").value.trim().toLowerCase(),L=all.filter(s=>(s.name+" "+s.number).toLowerCase().includes(q));
  $("#dcount").textContent=pl(all.length,"student");$("#semp").hidden=all.length>0;
- $("#slist").innerHTML=L.map(s=>`<div class="stu card"><div class="info"><b>${esc(s.name)}</b><small>${esc(s.number)}</small></div><button class="ib" data-qr="${s.id}" aria-label="QR code"><img src="icons/qr.png" alt=""></button><button class="ib" data-se="${s.id}" aria-label="Edit"><img src="icons/edit.png" alt=""></button><button class="ib" data-sr="${s.id}" aria-label="Remove"><img src="icons/del.png" alt=""></button></div>`).join("")}
+ $("#slist").innerHTML=L.map((s,i)=>`<div class="stu card" style="--i:${i}"><div class="info"><b>${esc(s.name)}</b><small>${esc(s.number)}</small></div><button class="ib" data-qr="${s.id}" aria-label="QR code"><img src="icons/qr.png" alt=""></button><button class="ib" data-se="${s.id}" aria-label="Edit"><img src="icons/edit.png" alt=""></button><button class="ib" data-sr="${s.id}" aria-label="Remove"><img src="icons/del.png" alt=""></button></div>`).join("")}
 function submitC(){const code=$("#code").value.trim(),name=$("#name").value.trim();
  if(!code)return toast("Class code is required.");if(!name)return toast("Class name is required.");
  if(active().some(c=>c.id!==editC&&c.code.toLowerCase()===code.toLowerCase()))return toast("That class code is already used.");
@@ -57,7 +57,7 @@ function showQR(id){const s=db.students[id],u=qrPng("QROLL1:"+id);$("#qimg").src
 const startCam=async()=>{if(stream)return;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});const v=$("#vid");v.srcObject=stream;await v.play();tick()}catch(e){stream=null;say("Camera unavailable. Allow camera access in your browser settings, then reopen Scan.","bad")}};
 const stop=()=>{stream&&stream.getTracks().forEach(t=>t.stop());stream=null};
 function tick(){if(!stream)return;const v=$("#vid");if(v.readyState>=2&&v.videoWidth){const c=$("#cv"),w=c.width=480,h=c.height=Math.round(480*v.videoHeight/v.videoWidth),x=c.getContext("2d",{willReadFrequently:true});x.drawImage(v,0,0,w,h);const r=jsQR(x.getImageData(0,0,w,h).data,w,h);if(r&&r.data)hit(r.data)}setTimeout(tick,150)}
-function say(m,k){const r=$("#res");r.textContent=m;r.className="res "+(k||"")}
+function say(m,k){const r=$("#res");r.textContent=m;r.className="res "+(k||"");r.style.animation="none";r.offsetWidth;r.style.animation="";if(k==="ok"){const c=$(".cam");c.classList.remove("hit");c.offsetWidth;c.classList.add("hit")}}
 const sEntries=()=>Object.values(db.entries).filter(e=>e.sessionId===sess.id);
 function hit(t){if(t===last.t&&Date.now()-last.at<2500)return;last={t,at:Date.now()};
  const m=/^QROLL1:(S\w+)$/.exec(t);if(!m)return say("Invalid QR code: this is not a QRoll ID.","bad");
@@ -68,7 +68,7 @@ function hit(t){if(t===last.t&&Date.now()-last.at<2500)return;last={t,at:Date.no
  const tm=nowT(),late=tm.slice(0,5)>addMin(sess.start,sess.grace);
  db.entries[k]={sessionId:sess.id,studentId:s.id,classId:s.classId,status:late?"Late":"Present",source:"scan",time:tm,note:""};save("entries");
  navigator.vibrate&&navigator.vibrate(60);say(`${s.name}: ${late?"Late":"Present"}`,"ok");progress()}
-function progress(){const E=sEntries(),c=db.classes[sess.classId];$("#cnt").textContent=`${E.length} of ${roster(sess.classId).length} students recorded`;
+function progress(){const E=sEntries(),c=db.classes[sess.classId];$("#cnt").textContent=`FRAME ${String(E.length).padStart(2,"0")} / ${String(roster(sess.classId).length).padStart(2,"0")} recorded`;
  $("#sinfo").textContent=`${c.code} · ${sess.date} · starts ${sess.start}, Late after ${addMin(sess.start,sess.grace)}`;
  $("#recent").innerHTML=E.sort((a,b)=>a.time<b.time?1:-1).slice(0,5).map(e=>`<div class="card" style="margin-bottom:6px">${esc(db.students[e.studentId].name)} · ${e.status} · ${e.time.slice(0,5)}</div>`).join("")||"<p>No scans yet.</p>";
  $("#rlist").innerHTML=roster(sess.classId).map(s=>{const e=db.entries[sess.id+":"+s.id],v=e?e.status:"";return `<div class="rv"><span>${esc(s.name)}<small>${esc(s.number)}</small></span><select data-r="${s.id}">${["","Present","Late","Absent","Excused"].map(o=>`<option value="${o}"${o===v?" selected":""}>${o||"Not recorded"}</option>`).join("")}</select></div>`}).join("")}
@@ -84,11 +84,12 @@ function begin(){const cid=$("#sclass").value;if(!roster(cid).length)return toas
 function closeSess(){const miss=roster(sess.classId).filter(s=>!db.entries[sess.id+":"+s.id]);
  ask(`Close this session? ${pl(miss.length,"student")} without a record will be marked Absent.`,()=>{miss.forEach(s=>db.entries[sess.id+":"+s.id]={sessionId:sess.id,studentId:s.id,classId:sess.classId,status:"Absent",source:"finalized",time:nowT(),note:""});sess.state="closed";save("entries");save("sessions");sess=null;toast("Session closed");go("dash",false)},"Close session")}
 // dashboard: every number comes from saved entries of closed sessions
+const cu=(el,to)=>{if(!el||to==null||matchMedia("(prefers-reduced-motion:reduce)").matches)return;const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/700);el.textContent=Math.round(to*p)+"%";p<1&&requestAnimationFrame(f)})(t0)};
 function renderDash(){const cs=new Set(Object.values(db.sessions).filter(s=>s.state==="closed").map(s=>s.id)),E=Object.values(db.entries).filter(e=>cs.has(e.sessionId));
  const rate=a=>{const p=a.filter(e=>e.status==="Present"||e.status==="Late").length,d=p+a.filter(e=>e.status==="Absent").length;return d?Math.round(p/d*100):null};
  if(!E.length){$("#dbody").innerHTML='<div class="card">No closed sessions yet. Finish a scanning session to see attendance here.</div>';return}
- const n=s=>E.filter(e=>e.status===s).length,bar=(l,r)=>`<div class="bar"><span>${esc(l)}</span><u><i style="width:${r??0}%"></i></u><b>${r==null?"–":r+"%"}</b></div>`,dt=e=>db.sessions[e.sessionId].date;
- $("#dbody").innerHTML=`<div class="card bigtxt"><b>${rate(E)??"–"}%</b> overall attendance<small>Present ${n("Present")} · Late ${n("Late")} · Absent ${n("Absent")} · Excused ${n("Excused")}</small></div><h2>By class</h2>${active().map(c=>bar(c.code,rate(E.filter(e=>e.classId===c.id)))).join("")}<h2>Recent days</h2>${[...new Set(E.map(dt))].sort().slice(-7).map(d=>bar(d.slice(5),rate(E.filter(e=>dt(e)===d)))).join("")}`}
+ const n=s=>E.filter(e=>e.status===s).length,bar=(l,r)=>`<div class="bar"><span>${esc(l)}</span><u><i style="--w:${r??0}%"></i></u><b>${r==null?"–":r+"%"}</b></div>`,dt=e=>db.sessions[e.sessionId].date;
+ $("#dbody").innerHTML=`<div class="card bigtxt"><b>${rate(E)??"–"}%</b> overall attendance<small>Present ${n("Present")} · Late ${n("Late")} · Absent ${n("Absent")} · Excused ${n("Excused")}</small></div><h2>By class</h2>${active().map(c=>bar(c.code,rate(E.filter(e=>e.classId===c.id)))).join("")}<h2>Recent days</h2>${[...new Set(E.map(dt))].sort().slice(-7).map(d=>bar(d.slice(5),rate(E.filter(e=>dt(e)===d)))).join("")}`};cu($(".bigtxt b"),rate(E))
 // export and backup
 const dl=(name,txt,type)=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4e3)};
 const csv=rows=>"\ufeff"+rows.map(r=>r.map(v=>{v=String(v??"");if(/^[=+\-@]/.test(v))v="'"+v;return /[",\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(",")).join("\r\n");
