@@ -57,8 +57,13 @@
  <h2>Export and backup</h2>
  <button class="btn ghost" id="xs">Export students (CSV)</button>
  <button class="btn ghost" id="xa">Export attendance (CSV)</button>
- <button class="btn ghost" id="xb">Back up all data (JSON)</button>
- <label class="btn ghost" for="rf">Restore from backup</label><input type="file" id="rf" accept=".json,application/json" hidden>
+ <button class="btn ghost" id="xb">Save sync file (also a backup)</button>
+ <label class="btn ghost" for="rf">Replace all data from a file</label><input type="file" id="rf" accept=".json,application/json" hidden>
+
+ <h2>Move data between devices</h2>
+ <p>Save a sync file on one device, then merge it on the other. Newer edits win and nothing is duplicated. Do it in both directions when both devices have changes.</p>
+ <label class="btn ghost" for="mf">Merge a sync file</label><input type="file" id="mf" accept=".json,application/json" hidden>
+ <button class="btn ghost" id="xh">Share sync file</button>
 </section>
 </main>
 <nav>

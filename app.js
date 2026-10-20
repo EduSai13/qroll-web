@@ -4,7 +4,22 @@ const db={classes:{},students:{},sessions:{},entries:{},meta:{schema:1}},KEYS=Ob
 let idb,cur="classes",editC=null,curC=null,editS=null,dlgOk=null,sess=null,stream=null,last={t:"",at:0};
 const open=()=>new Promise((res,rej)=>{const r=indexedDB.open("qroll_v1",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 const load=()=>new Promise(res=>{const tx=idb.transaction("kv"),st=tx.objectStore("kv");KEYS.forEach(k=>{st.get(k).onsuccess=e=>{if(e.target.result)db[k]=e.target.result}});tx.oncomplete=res});
-const save=k=>{try{idb.transaction("kv","readwrite").objectStore("kv").put(db[k],k)}catch(e){toast("Could not save. Free up space and try again.")}};
+const raw=k=>{try{idb.transaction("kv","readwrite").objectStore("kv").put(db[k],k)}catch(e){toast("Could not save. Free up space and try again.")}};
+const save=k=>{mark(k);raw(k)};
+// manual sync: every record carries updatedAt; deletions are remembered as tombstones so a merge can apply them
+const hs=r=>{const{updatedAt:_,...x}=r;return JSON.stringify(x)};
+function mark(k){if(k==="meta")return;const m=db.meta,H=m.h||(m.h={}),T=m.tomb||(m.tomb={});let ch=0;
+ for(const id in db[k]){const r=db[k][id],h=hs(r),key=k+"/"+id;if(H[key]!==h){H[key]=h;r.updatedAt=Date.now();delete T[key];ch=1}}
+ for(const key in H)if(key.startsWith(k+"/")&&!(key.slice(k.length+1) in db[k])){delete H[key];T[key]=Date.now();ch=1}
+ if(ch)raw("meta")}
+const syncFile=()=>({name:`qroll-sync-${today()}.json`,text:JSON.stringify({app:"QRoll",schema:1,exportedAt:new Date().toISOString(),data:{...db,meta:{schema:1}},tomb:db.meta.tomb||{}})});
+function merge(j){const m=db.meta,H=m.h||(m.h={}),T=m.tomb||(m.tomb={});let up=0,rm=0;
+ ["classes","students","sessions","entries"].forEach(k=>{const src=j.data[k]||{};for(const id in src){const r=src[id],key=k+"/"+id,l=db[k][id],u=r.updatedAt||0;
+  if(!l&&(T[key]||0)>=u&&T[key])continue;if(!l||(l.updatedAt||0)<u){db[k][id]=r;H[key]=hs(r);delete T[key];up++}}});
+ const rt=j.tomb||{};for(const key in rt){const p=key.indexOf("/"),k=key.slice(0,p),id=key.slice(p+1),l=db[k]&&db[k][id];
+  if(l&&(l.updatedAt||0)<=rt[key]){delete db[k][id];delete H[key];rm++}if((T[key]||0)<rt[key])T[key]=rt[key]}
+ KEYS.forEach(raw);if(sess)sess=db.sessions[sess.id]||null;R[cur]&&R[cur]();toast(`Merged: ${up} added or updated, ${rm} removed.`)}
+const initials=n=>{const w=n.trim().split(/\s+/);return((w[0]||"")[0]+(w.length>1?w[w.length-1][0]:"")).toUpperCase()};
 const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 let tt;const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2400)};
 const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10),nowT=()=>new Date().toTimeString().slice(0,8);
@@ -37,7 +52,7 @@ function submitS(){const name=$("#sname").value.trim(),number=$("#snum").value.t
  save("students");back()}
 // QR: payload is a versioned, permanent student ID, never the name or number
 function qrPng(t){const q=qrcode(0,"M");q.addData(t);q.make();const n=q.getModuleCount(),m=4,s=Math.floor(512/(n+2*m)),z=(n+2*m)*s,c=document.createElement("canvas");c.width=c.height=z;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,z,z);x.fillStyle="#000";for(let r=0;r<n;r++)for(let k=0;k<n;k++)if(q.isDark(r,k))x.fillRect((k+m)*s,(r+m)*s,s,s);return c.toDataURL("image/png")}
-function showQR(id){const s=db.students[id],u=qrPng("QROLL1:"+id);$("#qimg").src=u;$("#qcap").textContent=`${s.name} · ${s.number}`;const a=$("#qdl");a.href=u;a.download=`QRoll_${db.classes[s.classId].code}_${s.number}.png`.replace(/[^\w.\-]+/g,"_");$("#qd").showModal()}
+function showQR(id){const s=db.students[id],u=qrPng("QROLL1:"+id);$("#qimg").src=u;$("#qcap").textContent=`${s.name} · ${s.number}`;const a=$("#qdl");a.href=u;a.download=`${db.classes[s.classId].code}_${s.number}_${initials(s.name)}.png`.replace(/[^\w.\-]+/g,"_");$("#qd").showModal()}
 // scanning
 const startCam=async()=>{if(stream)return;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});const v=$("#vid");v.srcObject=stream;await v.play();tick()}catch(e){stream=null;say("Camera unavailable. Allow camera access in your browser settings, then reopen Scan.","bad")}};
 const stop=()=>{stream&&stream.getTracks().forEach(t=>t.stop());stream=null};
@@ -64,7 +79,7 @@ function openScan(){const L=active();$("#sclass").innerHTML=L.map(c=>`<option va
  $("#sempty").hidden=L.length>0;$("#ssetup").hidden=!L.length||!!sess;$("#slive").hidden=!sess;if(sess){progress();startCam()}}
 function begin(){const cid=$("#sclass").value;if(!roster(cid).length)return toast("Add students to this class first.");
  let s=Object.values(db.sessions).find(x=>x.classId===cid&&x.date===today()&&x.checkpoint==="Morning");
- if(!s){const id=uid("X");s=db.sessions[id]={id,classId:cid,date:today(),checkpoint:"Morning",start:$("#sstart").value||"07:30",grace:Math.max(0,+$("#sgrace").value||0),state:"open"}}else s.state="open";
+ if(!s){const id="X"+cid+"_"+today();s=db.sessions[id]={id,classId:cid,date:today(),checkpoint:"Morning",start:$("#sstart").value||"07:30",grace:Math.max(0,+$("#sgrace").value||0),state:"open"}}else s.state="open";
  save("sessions");sess=s;last={t:"",at:0};say("Point the camera at a student's QR code.");openScan()}
 function closeSess(){const miss=roster(sess.classId).filter(s=>!db.entries[sess.id+":"+s.id]);
  ask(`Close this session? ${pl(miss.length,"student")} without a record will be marked Absent.`,()=>{miss.forEach(s=>db.entries[sess.id+":"+s.id]={sessionId:sess.id,studentId:s.id,classId:sess.classId,status:"Absent",source:"finalized",time:nowT(),note:""});sess.state="closed";save("entries");save("sessions");sess=null;toast("Session closed");go("dash",false)},"Close session")}
@@ -91,14 +106,16 @@ document.addEventListener("click",e=>{const t=e.target.closest("button"),d=t&&t.
  else if(i==="remove")ask(`Remove ${db.classes[curC].code} from your class list? Its students and attendance history are kept.`,()=>{db.classes[curC].status="archived";save("classes");toast("Class removed");back()});
  else if(i==="sadd"){editS=null;$("#sftitle").textContent="Add Student";$("#ssave").textContent="Save Student";$("#sname").value=$("#snum").value="";go("sform")}
  else if(i==="ssave")submitS();else if(i==="sbegin")begin();else if(i==="srev"){$("#rev").hidden=!$("#rev").hidden}else if(i==="sclose")closeSess();
- else if(i==="xs")exp("s");else if(i==="xa")exp("a");else if(i==="xb"){dl(`qroll-backup-${today()}.json`,JSON.stringify({app:"QRoll",schema:1,exportedAt:new Date().toISOString(),data:db}),"application/json");toast("Backup downloaded")}
+ else if(i==="xs")exp("s");else if(i==="xa")exp("a");else if(i==="xb"){const f=syncFile();dl(f.name,f.text,"application/json");toast("Sync file saved")}else if(i==="xh"){const f=syncFile(),file=new File([f.text],f.name,{type:"application/json"});navigator.canShare&&navigator.canShare({files:[file]})?navigator.share({files:[file],title:f.name}).catch(()=>{}):(dl(f.name,f.text,"application/json"),toast("Sharing is not supported here. File saved instead."))}
  else if(i==="dyes"){$("#dlg").close();const f=dlgOk;dlgOk=null;f&&f()}else if(i==="dno")$("#dlg").close();else if(i==="qx")$("#qd").close();
  else if(i==="qsh")(async()=>{const n=$("#qdl").download,f=new File([await(await fetch($("#qimg").src)).blob()],n,{type:"image/png"});navigator.canShare&&navigator.canShare({files:[f]})?navigator.share({files:[f],title:n}).catch(()=>{}):toast("Sharing isn't supported here. Use Download PNG.")})()});
-document.addEventListener("change",e=>{if(e.target.dataset.r)setStatus(e.target.dataset.r,e.target.value);if(e.target.id==="rf"){const f=e.target.files[0];e.target.value="";f&&f.text().then(x=>{let j;try{j=JSON.parse(x)}catch(_){}
- if(!j||j.app!=="QRoll"||!j.data||!["classes","students","sessions","entries"].every(k=>j.data[k]&&typeof j.data[k]==="object"))return toast("That file is not a valid QRoll backup. Nothing was changed.");
- ask("Replace all current data with this backup?",()=>{KEYS.forEach(k=>{if(j.data[k])db[k]=j.data[k];save(k)});sess=null;toast("Backup restored");go("classes",false)},"Restore")})}});
+document.addEventListener("change",e=>{const t=e.target;if(t.dataset.r)return setStatus(t.dataset.r,t.value);if(t.id!=="rf"&&t.id!=="mf")return;const f=t.files[0],mode=t.id;t.value="";
+ f&&f.text().then(x=>{let j;try{j=JSON.parse(x)}catch(_){}
+  if(!j||j.app!=="QRoll"||!j.data||!["classes","students","sessions","entries"].every(k=>j.data[k]&&typeof j.data[k]==="object"))return toast("That file is not a valid QRoll file. Nothing was changed.");
+  if(mode==="mf")return ask("Merge this file into the data on this device? Newer edits win and nothing is duplicated.",()=>merge(j),"Merge");
+  ask("Replace all current data on this device with this file?",()=>{KEYS.filter(k=>k!=="meta").forEach(k=>{if(j.data[k])db[k]=j.data[k];save(k)});sess=null;toast("Backup restored");go("classes",false)},"Replace")})});
 $("#q").addEventListener("input",renderD);
 addEventListener("popstate",()=>{const u=upOf();if(u)go(u,false)});
 (async()=>{try{idb=await open();await load();navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){toast("Storage unavailable: data will not be saved.")}
- go("classes",false);if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{})})();
+ KEYS.filter(k=>k!=="meta").forEach(mark);go("classes",false);if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{})})();
 })();

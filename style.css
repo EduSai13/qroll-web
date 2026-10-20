@@ -69,3 +69,4 @@ small{display:block}
 .bar u{display:block;height:14px;background:var(--cream)}.bar i{display:block;height:100%;background:var(--mug)}.bar b{text-align:right}
 .bigtxt b{font:400 40px "Abril Fatface",serif}
 #qd{text-align:center}#qd img{width:100%;max-width:260px}
+textarea{width:100%;padding:10px 12px;border:2px solid var(--cosy);background:var(--cream);color:var(--cocoa);font:400 15px Jost,sans-serif}
