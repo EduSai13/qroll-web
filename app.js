@@ -87,7 +87,7 @@ function closeSess(){const miss=roster(sess.classId).filter(s=>!db.entries[sess.
 const cu=(el,to)=>{if(!el||to==null||matchMedia("(prefers-reduced-motion:reduce)").matches)return;const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/700);el.textContent=Math.round(to*p)+"%";p<1&&requestAnimationFrame(f)})(t0)};
 function renderDash(){const cs=new Set(Object.values(db.sessions).filter(s=>s.state==="closed").map(s=>s.id)),E=Object.values(db.entries).filter(e=>cs.has(e.sessionId));
  const rate=a=>{const p=a.filter(e=>e.status==="Present"||e.status==="Late").length,d=p+a.filter(e=>e.status==="Absent").length;return d?Math.round(p/d*100):null};
- if(!E.length){$("#dbody").innerHTML='<div class="card">No closed sessions yet. Finish a scanning session to see attendance here.</div>';return}
+ if(!E.length){$("#dbody").innerHTML='<div class="card empty"><svg class="mas" viewBox="0 0 120 120" aria-hidden="true"><use href="#mascot"/></svg><br>No closed sessions yet. Finish a scanning session to see attendance here.</div>';return}
  const n=s=>E.filter(e=>e.status===s).length,bar=(l,r)=>`<div class="bar"><span>${esc(l)}</span><u><i style="--w:${r??0}%"></i></u><b>${r==null?"–":r+"%"}</b></div>`,dt=e=>db.sessions[e.sessionId].date;
  $("#dbody").innerHTML=`<div class="card bigtxt"><b>${rate(E)??"–"}%</b> overall attendance<small>Present ${n("Present")} · Late ${n("Late")} · Absent ${n("Absent")} · Excused ${n("Excused")}</small></div><h2>By class</h2>${active().map(c=>bar(c.code,rate(E.filter(e=>e.classId===c.id)))).join("")}<h2>Recent days</h2>${[...new Set(E.map(dt))].sort().slice(-7).map(d=>bar(d.slice(5),rate(E.filter(e=>dt(e)===d)))).join("")}`;cu($(".bigtxt b"),rate(E))}
 // export and backup

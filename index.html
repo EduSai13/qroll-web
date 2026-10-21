@@ -8,9 +8,9 @@
 <div class="perf"></div>
 <main>
 <section id="v-classes" class="view">
- <div class="glance card"><div><small id="hello"></small><b>Your day at a glance</b><span id="glance"></span></div><button class="btn primary sm" data-nav="scan">Scan now</button></div>
+ <div class="glance card"><svg class="mas" viewBox="0 0 120 120" aria-hidden="true"><use href="#mascot"/></svg><div><small id="hello"></small><b>Your day at a glance</b><span id="glance"></span></div><button class="btn primary sm" data-nav="scan">Scan now</button></div>
  <h2>Your classes</h2><div id="list"></div>
- <div id="empty" class="empty" hidden><b>No classes yet</b><p>Tap Add Class to create your first class.</p></div>
+ <div id="empty" class="empty" hidden><svg class="mas" viewBox="0 0 120 120" aria-hidden="true"><use href="#mascot"/></svg><b>No classes yet</b><p>Tap Add Class to create your first class.</p></div>
  <button class="btn primary" id="add"><img src="icons/add.png" alt=""> Add Class</button>
 </section>
 <section id="v-form" class="view" hidden>
@@ -23,7 +23,7 @@
  <div class="card detail"><span id="dcode"></span><h2 id="dname" class="big"></h2><span id="dcount"></span></div>
  <div class="row"><button class="btn ghost" id="edit"><img src="icons/edit.png" alt=""> Edit</button><button class="btn danger" id="remove"><img src="icons/del.png" alt=""> Remove</button></div>
  <h2>Students</h2><input id="q" type="search" placeholder="Search name or student number">
- <div id="slist"></div><div id="semp" class="empty" hidden><b>No students yet</b><p>Tap Add Student to build this roster.</p></div>
+ <div id="slist"></div><div id="semp" class="empty" hidden><svg class="mas" viewBox="0 0 120 120" aria-hidden="true"><use href="#mascot"/></svg><b>No students yet</b><p>Tap Add Student to build this roster.</p></div>
  <button class="btn primary" id="sadd"><img src="icons/add.png" alt=""> Add Student</button>
  <button class="btn ghost" id="back"><img src="icons/back.png" alt=""> Back to classes</button>
 </section>
@@ -35,7 +35,7 @@
 </section>
 <section id="v-scan" class="view" hidden>
  <h2 class="big">Scan attendance</h2>
- <div id="sempty" class="empty" hidden><b>No classes yet</b><p>Create a class and add students first.</p></div>
+ <div id="sempty" class="empty" hidden><svg class="mas" viewBox="0 0 120 120" aria-hidden="true"><use href="#mascot"/></svg><b>No classes yet</b><p>Create a class and add students first.</p></div>
  <div id="ssetup">
   <label for="sclass">Class</label><select id="sclass"></select>
   <label for="sstart">First period starts</label><input id="sstart" type="time" value="07:30">
@@ -74,5 +74,17 @@
 <div id="toast" role="status"></div>
 <dialog id="dlg"><p id="dmsg"></p><div class="row"><button class="btn ghost" id="dno">Cancel</button><button class="btn danger" id="dyes"></button></div></dialog>
 <dialog id="qd"><img id="qimg" alt="Student QR code"><p id="qcap"></p><a id="qdl" class="btn primary">Download PNG</a><div class="row"><button class="btn ghost" id="qsh">Share</button><button class="btn ghost" id="qx">Close</button></div></dialog>
+<svg width="0" height="0" style="position:absolute"><defs><symbol id="mascot" viewBox="0 0 120 120"><g>
+<ellipse cx="46" cy="112" rx="10" ry="5" fill="#E19E4E"/><ellipse cx="74" cy="112" rx="10" ry="5" fill="#E19E4E"/>
+<g transform="rotate(-18 96 98)"><rect x="82" y="84" width="30" height="26" rx="2" fill="#F5EADD" stroke="#613627" stroke-width="3"/><g fill="#613627"><rect x="85" y="87" width="4" height="4"/><rect x="93" y="87" width="4" height="4"/><rect x="101" y="87" width="4" height="4"/><rect x="85" y="103" width="4" height="4"/><rect x="93" y="103" width="4" height="4"/><rect x="101" y="103" width="4" height="4"/></g></g>
+<circle cx="60" cy="62" r="48" fill="#613627"/>
+<g fill="#F2EDE8"><circle cx="96" cy="62" r="6.5"/><circle cx="78" cy="93.2" r="6.5"/><circle cx="42" cy="93.2" r="6.5"/><circle cx="24" cy="62" r="6.5"/><circle cx="42" cy="30.8" r="6.5"/><circle cx="78" cy="30.8" r="6.5"/></g>
+<circle cx="60" cy="62" r="26" fill="#F5EADD"/>
+<ellipse cx="51" cy="58" rx="3.6" ry="4.6" fill="#613627"/><ellipse cx="69" cy="58" rx="3.6" ry="4.6" fill="#613627"/>
+<circle cx="52.2" cy="56.4" r="1.2" fill="#F5EADD"/><circle cx="70.2" cy="56.4" r="1.2" fill="#F5EADD"/>
+<circle cx="44" cy="68" r="4" fill="#E19E4E" opacity=".75"/><circle cx="76" cy="68" r="4" fill="#E19E4E" opacity=".75"/>
+<path d="M53 68 Q60 76 67 68" fill="none" stroke="#613627" stroke-width="3" stroke-linecap="round"/>
+<path d="M104 18 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z" fill="#FCD8A2" stroke="#613627" stroke-width="2" stroke-linejoin="round"/>
+</g></symbol></defs></svg>
 <script src="lib/qrcode.js"></script><script src="lib/jsQR.js"></script><script src="app.js"></script>
 </body></html>

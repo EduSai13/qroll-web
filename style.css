@@ -9,14 +9,14 @@ body{margin:0;min-height:100dvh;color:var(--cocoa);font:400 16px/1.4 Jost,system
 [hidden]{display:none!important}
 small{display:block}
 .top{grid-area:top;display:flex;align-items:center;padding:8px 16px}
-.logo{height:56px;width:auto;transition:transform .3s}.logo:hover{animation:wig .6s}
+.logo{height:56px;width:auto}
 .perf{grid-area:perf;height:16px;background:url(assets/film_strip.png) repeat-x 0 0/auto 100%;animation:roll 14s linear infinite}
 main{grid-area:main;width:100%;max-width:1100px;margin:0 auto;padding:6px 16px 24px}
 h2{font:600 18px Jost,sans-serif;margin:18px 0 8px}
 h2.big{font:400 28px "Abril Fatface",serif;margin:12px 0 14px}
 .view{animation:in .4s cubic-bezier(.2,.9,.3,1.1)}
 .card{background:var(--cream);border:2px solid var(--cocoa);border-radius:18px;box-shadow:0 4px 0 var(--cosy);padding:12px}
-.glance{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--spr);margin-top:12px}
+.glance{flex-wrap:wrap;display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--spr);margin-top:12px}
 .glance div{display:flex;flex-direction:column}.glance b{font:400 22px "Abril Fatface",serif}
 #list,#slist{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
 .class,.stu{display:flex;align-items:center;gap:12px;animation:pop .45s both;animation-delay:calc(var(--i,0)*55ms);transition:transform .2s}
@@ -73,7 +73,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.95)}}
 @keyframes roll{to{background-position-x:160px}}
 @keyframes bop{40%{transform:scale(1.3) rotate(-8deg)}}
-@keyframes wig{25%{transform:rotate(-4deg)}75%{transform:rotate(4deg)}}
 @keyframes breathe{50%{transform:scale(1.1)}}
 @keyframes sweep{from{top:18%}to{top:80%}}
 @keyframes blink{50%{opacity:.2}}
@@ -91,3 +90,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
  .bigtxt b{font-size:64px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.mas{display:block;width:96px;height:96px;margin:0 auto 8px;animation:bob 3.2s ease-in-out infinite}
+.glance .mas{width:60px;height:60px;margin:0}
+@keyframes bob{50%{transform:translateY(-6px) rotate(4deg)}}
+@media(max-width:380px){.glance .mas{display:none}}
