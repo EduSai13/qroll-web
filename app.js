@@ -27,19 +27,19 @@ const addMin=(t,m)=>{const n=+t.slice(0,2)*60+ +t.slice(3,5)+m;return String(Mat
 const active=()=>Object.values(db.classes).filter(c=>c.status!=="archived").sort((a,b)=>a.createdAt<b.createdAt?-1:1);
 const roster=id=>Object.values(db.students).filter(s=>s.classId===id&&s.status!=="archived").sort((a,b)=>a.name.localeCompare(b.name));
 const pl=(n,w)=>`${n} ${w}${n===1?"":"s"}`;
-const V=["classes","form","detail","sform","scan","dash"],R={classes:render,detail:renderD,dash:renderDash,scan:openScan};
-const upOf=()=>({form:editC?"detail":"classes",detail:"classes",sform:"detail"})[cur];
+const V=["classes","form","detail","sform","scan","dash","sprof"],R={classes:render,detail:renderD,dash:renderDash,scan:openScan,sprof:renderP};
+const upOf=()=>({form:editC?"detail":"classes",detail:"classes",sform:"detail",sprof:"detail"})[cur];
 function go(v,push=true){if(cur==="scan"&&v!=="scan")stop();cur=v;V.forEach(n=>$("#v-"+n).hidden=n!==v);
- const tab=["form","detail","sform"].includes(v)?"classes":v;$$("nav button").forEach(b=>{const on=b.dataset.nav===tab;b.classList.toggle("on",on);b.querySelector("img").src=`icons/${b.dataset.nav}_${on?"on":"off"}.png`});
+ const tab=["form","detail","sform","sprof"].includes(v)?"classes":v;$$("nav button").forEach(b=>{const on=b.dataset.nav===tab;b.classList.toggle("on",on)});
  if(push&&upOf())history.pushState({v},"");R[v]&&R[v]();scrollTo(0,0)}
 function back(){if(history.state&&history.state.v)history.back();else go(upOf()||"classes",false)}
 function ask(msg,ok,yes="Remove"){$("#dmsg").textContent=msg;$("#dyes").textContent=yes;dlgOk=ok;$("#dlg").showModal()}
 function render(){const L=active();let t=0;
  $("#list").innerHTML=L.map((c,i)=>{const n=roster(c.id).length;t+=n;return `<div class="class card" style="--i:${i}"><div class="frame">${String(i+1).padStart(2,"0")}</div><div class="info"><small>${esc(c.code)}</small><b>${esc(c.name)}</b><small>${pl(n,"student")}</small></div><button class="go" data-open="${c.id}" aria-label="Open ${esc(c.name)}"><img src="icons/go.png" alt=""></button></div>`}).join("");
- $("#empty").hidden=L.length>0;{const h=new Date().getHours();$("#hello").textContent=(h<12?"Good morning":h<18?"Good afternoon":"Good evening")+" · "+new Date().toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})}$("#glance").textContent=`${L.length} ${L.length===1?"class":"classes"} · ${pl(t,"student")}`}
-function renderD(){const c=db.classes[curC];if(!c)return go("classes",false);$("#dcode").textContent=c.code;$("#dname").textContent=c.name;const all=roster(curC),q=$("#q").value.trim().toLowerCase(),L=all.filter(s=>(s.name+" "+s.number).toLowerCase().includes(q));
+ $$("#cseg button").forEach(b=>b.classList.toggle("on",b.dataset.cv===cv));{const sm=cv==="stu";$("#list").hidden=sm;$("#empty").hidden=sm||L.length>0;$("#add").hidden=sm;$("#allst").hidden=!sm;if(sm)allStudents()}{const h=new Date().getHours();$("#hello").textContent=(h<12?"Good morning":h<18?"Good afternoon":"Good evening")+" · "+new Date().toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})}$("#glance").textContent=`${L.length} ${L.length===1?"class":"classes"} · ${pl(t,"student")}`}
+function renderD(){const c=db.classes[curC];if(!c)return go("classes",false);$("#dcode").textContent=c.code;$("#dname").textContent=c.name;const SB=by(entsAll(),e=>e.studentId),all=roster(curC),q=$("#q").value.trim().toLowerCase(),L=all.filter(s=>(s.name+" "+s.number).toLowerCase().includes(q));
  $("#dcount").textContent=pl(all.length,"student");$("#semp").hidden=all.length>0;
- $("#slist").innerHTML=L.map((s,i)=>`<div class="stu card" style="--i:${i}"><div class="info"><b>${esc(s.name)}</b><small>${esc(s.number)}</small></div><button class="ib" data-qr="${s.id}" aria-label="QR code"><img src="icons/qr.png" alt=""></button><button class="ib" data-se="${s.id}" aria-label="Edit"><img src="icons/edit.png" alt=""></button><button class="ib" data-sr="${s.id}" aria-label="Remove"><img src="icons/del.png" alt=""></button></div>`).join("")}
+ $("#slist").innerHTML=L.map((s,i)=>`<div class="stu card" style="--i:${i}"><button class="info" data-sp="${s.id}"><b>${esc(s.name)}</b><small>${stLine(s,SB)}</small></button><button class="ib" data-qr="${s.id}" aria-label="QR code"><img src="icons/qr.png" alt=""></button><button class="ib" data-se="${s.id}" aria-label="Edit"><img src="icons/edit.png" alt=""></button><button class="ib" data-sr="${s.id}" aria-label="Remove"><img src="icons/del.png" alt=""></button></div>`).join("");$("#ct-stu").hidden=ct!=="stu";$("#ct-cal").hidden=ct!=="cal";$$("#dseg button").forEach(b=>b.classList.toggle("on",b.dataset.ct===ct));if(ct==="cal")renderC()}
 function submitC(){const code=$("#code").value.trim(),name=$("#name").value.trim();
  if(!code)return toast("Class code is required.");if(!name)return toast("Class name is required.");
  if(active().some(c=>c.id!==editC&&c.code.toLowerCase()===code.toLowerCase()))return toast("That class code is already used.");
@@ -51,8 +51,26 @@ function submitS(){const name=$("#sname").value.trim(),number=$("#snum").value.t
  if(editS){Object.assign(db.students[editS],{name,number});toast("Changes saved")}else{const id=uid("S");db.students[id]={id,classId:curC,name,number,status:"active",createdAt:new Date().toISOString()};toast("Student added")}
  save("students");back()}
 // QR: payload is a versioned, permanent student ID, never the name or number
-function qrPng(t){const q=qrcode(0,"M");q.addData(t);q.make();const n=q.getModuleCount(),m=4,s=Math.floor(512/(n+2*m)),z=(n+2*m)*s,c=document.createElement("canvas");c.width=c.height=z;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,z,z);x.fillStyle="#000";for(let r=0;r<n;r++)for(let k=0;k<n;k++)if(q.isDark(r,k))x.fillRect((k+m)*s,(r+m)*s,s,s);return c.toDataURL("image/png")}
-function showQR(id){const s=db.students[id],u=qrPng("QROLL1:"+id);$("#qimg").src=u;$("#qcap").textContent=`${s.name} · ${s.number}`;const a=$("#qdl");a.href=u;a.download=`${db.classes[s.classId].code}_${s.number}_${initials(s.name)}.png`.replace(/[^\w.\-]+/g,"_");$("#qd").showModal()}
+function qrPng(t){const q=qrcode(0,"M");q.addData(t);q.make();const n=q.getModuleCount(),m=4,s=Math.floor(512/(n+2*m)),z=(n+2*m)*s,c=document.createElement("canvas");c.width=c.height=z;const x=c.getContext("2d");x.fillStyle="#F2EDE8";x.fillRect(0,0,z,z);x.fillStyle="#613627";for(let r=0;r<n;r++)for(let k=0;k<n;k++)if(q.isDark(r,k))x.fillRect((k+m)*s,(r+m)*s,s,s);return c.toDataURL("image/png")}
+const loadImg=u=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=u});let LOGO,qs=null;
+const ready=async()=>{await Promise.all(['400 20px "Abril Fatface"','400 20px Jost','600 20px Jost'].map(f=>document.fonts.load(f)));LOGO=LOGO||await loadImg("assets/logo.png")};
+const qrOf=id=>{const q=qrcode(0,"M");q.addData("QROLL1:"+id);q.make();return q};
+const page=(f,k)=>{const c=document.createElement("canvas");c.width=Math.round(Cards.W*k);c.height=Math.round(Cards.H*k);const x=c.getContext("2d");x.scale(k,k);f(x);return c};
+const idPage=(s,k)=>page(x=>Cards.idCard(x,{name:s.name,cls:cl(s.classId).code,num:s.number,q:qrOf(s.id),logo:LOGO}),k);
+const rosPage=(cid,L,p,n,k)=>page(x=>Cards.roster(x,{cls:cl(cid).code,list:L.map(s=>({name:s.name,q:qrOf(s.id)})),logo:LOGO,page:p,pages:n}),k);
+const safe=t=>String(t).replace(/[^\w.\-]+/g,"_"),idName=s=>`${safe(cl(s.classId).code)}_${safe(s.number)}_${initials(s.name)}.png`;
+const toBlob=c=>new Promise(r=>c.toBlob(r,"image/png"));
+const dlb=(n,b)=>{const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4e3)};
+async function showQR(id){await ready();qs=db.students[id];$("#qimg").src=idPage(qs,1.2).toDataURL("image/png");$("#qcap").textContent=idName(qs);$("#qd").showModal()}
+function printPages(cs){const p=$("#pp");p.innerHTML="";let n=cs.length;cs.forEach(c=>{const i=new Image();i.onload=()=>--n||setTimeout(()=>print(),60);i.src=c.toDataURL("image/png");p.appendChild(i)})}
+addEventListener("afterprint",()=>{$("#pp").innerHTML=""});
+async function sheet(kind,mode){const L=roster(curC),c=db.classes[curC];if(!L.length)return toast("Add students first.");toast("Preparing...");await ready();const k=mode==="print"?2:3,files=[];
+ if(kind==="ids")L.forEach(s=>files.push([idName(s),idPage(s,k)]));
+ else{const n=Math.ceil(L.length/20);for(let p=0;p<n;p++)files.push([`${safe(c.code)}_roster${n>1?"_p"+(p+1):""}.png`,rosPage(curC,L.slice(p*20,p*20+20),p+1,n,k)])}
+ if(mode==="print")return printPages(files.map(f=>f[1]));
+ if(files.length===1)return dlb(files[0][0],await toBlob(files[0][1]));
+ const o={};for(const[n,cv] of files)o[n]=new Uint8Array(await(await toBlob(cv)).arrayBuffer());
+ dlb(`${safe(c.code)}_${kind==="ids"?"ID-cards":"roster"}.zip`,new Blob([zipSync(o,{level:0})],{type:"application/zip"}));toast("Download ready")}
 // scanning
 const startCam=async()=>{if(stream)return;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});const v=$("#vid");v.srcObject=stream;await v.play();tick()}catch(e){stream=null;say("Camera unavailable. Allow camera access in your browser settings, then reopen Scan.","bad")}};
 const stop=()=>{stream&&stream.getTracks().forEach(t=>t.stop());stream=null};
@@ -85,11 +103,45 @@ function closeSess(){const miss=roster(sess.classId).filter(s=>!db.entries[sess.
  ask(`Close this session? ${pl(miss.length,"student")} without a record will be marked Absent.`,()=>{miss.forEach(s=>db.entries[sess.id+":"+s.id]={sessionId:sess.id,studentId:s.id,classId:sess.classId,status:"Absent",source:"finalized",time:nowT(),note:""});sess.state="closed";save("entries");save("sessions");sess=null;toast("Session closed");go("dash",false)},"Close session")}
 // dashboard: every number comes from saved entries of closed sessions
 const cu=(el,to)=>{if(!el||to==null||matchMedia("(prefers-reduced-motion:reduce)").matches)return;const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/700);el.textContent=Math.round(to*p)+"%";p<1&&requestAnimationFrame(f)})(t0)};
-function renderDash(){const cs=new Set(Object.values(db.sessions).filter(s=>s.state==="closed").map(s=>s.id)),E=Object.values(db.entries).filter(e=>cs.has(e.sessionId));
- const rate=a=>{const p=a.filter(e=>e.status==="Present"||e.status==="Late").length,d=p+a.filter(e=>e.status==="Absent").length;return d?Math.round(p/d*100):null};
- if(!E.length){$("#dbody").innerHTML='<div class="card empty"><svg class="mas" viewBox="0 0 120 120" aria-hidden="true"><use href="#mascot"/></svg><br>No closed sessions yet. Finish a scanning session to see attendance here.</div>';return}
- const n=s=>E.filter(e=>e.status===s).length,bar=(l,r)=>`<div class="bar"><span>${esc(l)}</span><u><i style="--w:${r??0}%"></i></u><b>${r==null?"–":r+"%"}</b></div>`,dt=e=>db.sessions[e.sessionId].date;
- $("#dbody").innerHTML=`<div class="card bigtxt"><b>${rate(E)??"–"}%</b> overall attendance<small>Present ${n("Present")} · Late ${n("Late")} · Absent ${n("Absent")} · Excused ${n("Excused")}</small></div><h2>By class</h2>${active().map(c=>bar(c.code,rate(E.filter(e=>e.classId===c.id)))).join("")}<h2>Recent days</h2>${[...new Set(E.map(dt))].sort().slice(-7).map(d=>bar(d.slice(5),rate(E.filter(e=>dt(e)===d)))).join("")}`;cu($(".bigtxt b"),rate(E))}
+let cv="cls",ct="stu",cm="month",an={m:"today",day:today()},cd={day:today()},sp={id:null,day:today()};
+const MAS='<svg class="mas" viewBox="0 0 120 120" aria-hidden="true"><use href="#mascot"/></svg>';
+const pd=s=>new Date(s+"T12:00:00"),ymd=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const addD=(s,n)=>{const d=pd(s);d.setDate(d.getDate()+n);return ymd(d)},addM=(s,n)=>{const d=pd(s);d.setDate(1);d.setMonth(d.getMonth()+n);return ymd(d)};
+const wkOf=s=>{const m=addD(s,-((pd(s).getDay()+6)%7));return[...Array(7)].map((_,i)=>addD(m,i))};
+const rt=a=>{const p=a.filter(e=>e.status==="Present"||e.status==="Late").length,d=p+a.filter(e=>e.status==="Absent").length;return d?Math.round(p/d*100):null};
+const entsAll=()=>{const c=new Set(Object.values(db.sessions).filter(s=>s.state==="closed").map(s=>s.id));return Object.values(db.entries).filter(e=>c.has(e.sessionId)).map(e=>({...e,date:db.sessions[e.sessionId].date}))};
+const by=(a,f)=>a.reduce((o,e)=>((o[f(e)]=o[f(e)]||[]).push(e),o),{});
+const heat=a=>{const r=rt(a);return r==null?"":r>=90?"h3":r>=70?"h2":"h1"};
+const mTitle=s=>pd(s).toLocaleDateString(undefined,{month:"long",year:"numeric"}),dTitle=s=>pd(s).toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"});
+const cnt=(a,s)=>a.filter(e=>e.status===s).length;
+const stLine=(s,SB)=>{const a=SB[s.id]||[],r=rt(a);return esc(s.number)+(a.length?` · ${r==null?"-":r+"%"} · P${cnt(a,"Present")} L${cnt(a,"Late")} A${cnt(a,"Absent")}`:" · no records yet")};
+const grid=(day,f)=>{const d=pd(day);d.setDate(1);const y=d.getFullYear(),m=d.getMonth(),n=new Date(y,m+1,0).getDate();return'<div class="cal">'+"MTWTFSS".split("").map(x=>`<b>${x}</b>`).join("")+"<i></i>".repeat((d.getDay()+6)%7)+[...Array(n)].map((_,i)=>{const s=ymd(new Date(y,m,i+1,12));return `<button class="dc ${f(s)}" data-day="${s}">${i+1}</button>`}).join("")+"</div>"};
+const hdr=(t,k)=>`<div class="calh"><button class="ib" data-sh="${k}:-1" aria-label="Previous">&lsaquo;</button><b>${t}</b><button class="ib" data-sh="${k}:1" aria-label="Next">&rsaquo;</button></div>`;
+const LG='<div class="lg"><span class="h3">90% or more</span><span class="h2">70 to 89%</span><span class="h1">under 70%</span></div>';
+const sc=(l,v,c)=>`<div class="sc ${c}"><b>${v}</b><small>${l}</small></div>`;
+const stats4=S=>{const r=rt(S);return `<div class="stats">${sc("attendance",r==null?"-":r+"%","c1")}${sc("present",cnt(S,"Present"),"c2")}${sc("late",cnt(S,"Late"),"c3")}${sc("absent",cnt(S,"Absent"),"c4")}</div>`};
+const seg=(items,cur,k)=>`<div class="seg">${items.map(([v,l])=>`<button data-${k}="${v}"${cur===v?' class="on"':""}>${l}</button>`).join("")}</div>`;
+const dayRows=(A,R_,d)=>{const m=by(A.filter(e=>e.date===d),e=>e.studentId);return R_.map(s=>{const e=m[s.id]&&m[s.id][0];return `<div class="rv"><span>${esc(s.name)}<small>${esc(s.number)}</small></span>${e?`<span class="ch st-${e.status[0]}">${e.status}</span><small>${e.time.slice(0,5)}</small>`:'<span class="ch">no record</span>'}</div>`}).join("")};
+function renderDash(){const A=entsAll(),day=an.day,wk=wkOf(day);
+ if(!A.length){$("#dbody").innerHTML='<div class="card empty">'+MAS+'<br>No closed sessions yet. Finish a scanning session to see attendance here.</div>';return}
+ const D=by(A,e=>e.date),inS=d=>an.m==="today"?d===day:an.m==="week"?wk.includes(d):d.slice(0,7)===day.slice(0,7),S=A.filter(e=>inS(e.date));
+ const parts=[["Present","var(--mug)"],["Late","var(--spr)"],["Absent","var(--cocoa)"],["Excused","var(--cosy)"]].map(([l,c])=>[l,cnt(S,l),c]);let off=25;
+ const arcs=parts.filter(x=>x[1]).map(([l,v,c])=>{const p=v/S.length*100,o=off;off-=p;return `<circle r="15.915" cx="21" cy="21" fill="none" style="stroke:${c}" stroke-width="6" stroke-dasharray="${p} ${100-p}" stroke-dashoffset="${o}"/>`}).join("");
+ $("#dbody").innerHTML=seg([["today","Today"],["week","Week"],["month","Month"]],an.m,"am")+
+ `<div class="card stack" style="margin-top:16px"><b class="ct">Summary day to day</b><div class="cols">${wk.map((s,i)=>{const r=rt(D[s]||[]);return `<button class="col${s===day?" sel":""}" data-day="${s}" aria-label="${dTitle(s)}"><em class="tip">${r==null?"-":r+"%"}</em><u><i style="--h:${r??0}%"></i></u><small>${"MTWTFSS"[i]}</small><span>${s.slice(8)}</span></button>`}).join("")}</div><div class="wknav"><button class="ib" data-sh="dw:-1" aria-label="Previous week">&lsaquo;</button><span>${wk[0].slice(5)} to ${wk[6].slice(5)}</span><button class="ib" data-sh="dw:1" aria-label="Next week">&rsaquo;</button></div></div>`+
+ stats4(S)+
+ `<div class="card stack" style="margin-top:16px"><b class="ct">Total stats</b><div class="dnw"><svg viewBox="0 0 42 42" class="dn" role="img" aria-label="Status breakdown"><circle r="18.9" cx="21" cy="21" fill="none" style="stroke:var(--cocoa)" stroke-width=".4"/><circle r="12.9" cx="21" cy="21" fill="none" style="stroke:var(--cocoa)" stroke-width=".4"/>${arcs}</svg><div class="legend">${parts.map(([l,v,c])=>`<span><i style="background:${c}"></i>${l}<small>${v}</small></span>`).join("")}</div></div></div>`+
+ `<div class="card stack" style="margin-top:16px"><div class="calh"><button class="ib" data-sh="dm:-1" aria-label="Previous month">&lsaquo;</button><b>${mTitle(day)}</b><button class="ib" data-sh="dm:1" aria-label="Next month">&rsaquo;</button></div>${grid(day,s=>heat(D[s]||[])+(s===day?" sel":""))}${LG}</div>`+
+ `<h2>By class</h2>${active().map(c=>{const x=rt(S.filter(e=>e.classId===c.id));return `<div class="bar"><span>${esc(c.code)}</span><u><i style="--w:${x??0}%"></i></u><b>${x==null?"-":x+"%"}</b></div>`}).join("")}`+
+ `<h2>${dTitle(day)}</h2><div class="chain">${Object.values(db.sessions).filter(s=>s.date===day).map(s=>{const a=A.filter(e=>e.sessionId===s.id);return `<div class="card"><b>${esc(cl(s.classId).code)}</b> · ${s.state}<small>P ${cnt(a,"Present")} · L ${cnt(a,"Late")} · A ${cnt(a,"Absent")} · E ${cnt(a,"Excused")}</small></div>`}).join("")||"<p>No sessions on this day.</p>"}</div>`;
+ cu($(".sc.c1 b"),rt(S))}
+function renderC(){const A=entsAll().filter(e=>e.classId===curC),day=cd.day,R_=roster(curC),D=by(A,e=>e.date);let h=seg([["month","Month"],["week","Week"]],cm,"cm");
+ if(cm==="month")h+=`<div class="card" style="margin-top:14px">${hdr(mTitle(day),"cm")}${grid(day,s=>heat(D[s]||[])+(s===day?" sel":""))}${LG}</div><h2>${dTitle(day)}</h2>${D[day]?dayRows(A,R_,day):"<p>No closed session on this day.</p>"}`;
+ else{const wk=wkOf(day);h+=`<div class="card" style="margin-top:14px">${hdr(wk[0].slice(5)+" to "+wk[6].slice(5),"cw")}<div class="mx"><span></span>${wk.map((s,i)=>`<b>${"MTWTFSS"[i]}<small>${s.slice(8)}</small></b>`).join("")}${R_.map(s=>`<span class="nm">${esc(s.name)}</span>${wk.map(d=>{const e=(D[d]||[]).find(x=>x.studentId===s.id);return e?`<span class="ch st-${e.status[0]}">${e.status[0]}</span>`:'<span class="ch">&middot;</span>'}).join("")}`).join("")}</div></div>`}
+ $("#ccal").innerHTML=h}
+function renderP(){const s=db.students[sp.id];if(!s)return go("detail",false);const A=entsAll().filter(e=>e.studentId===s.id),M={};A.forEach(e=>M[e.date]=e);
+ $("#pbody").innerHTML=`<div class="card detail"><span>${esc(cl(s.classId).code)} · ${esc(cl(s.classId).name)}</span><h2 class="big">${esc(s.name)}</h2><span>${esc(s.number)}</span></div><div class="row"><button class="btn ghost" data-qr="${s.id}"><img src="icons/qr.png" alt=""> QR code</button><button class="btn ghost" data-se="${s.id}"><img src="icons/edit.png" alt=""> Edit</button></div>${stats4(A)}<div class="card" style="margin-top:14px">${hdr(mTitle(sp.day),"pm")}${grid(sp.day,d=>M[d]?"st-"+M[d].status[0]:"")}<div class="lg"><span class="st-P">Present</span><span class="st-L">Late</span><span class="st-A">Absent</span><span class="st-E">Excused</span></div></div><h2>History</h2><div class="chain">${A.sort((a,b)=>a.date<b.date?1:-1).slice(0,30).map(e=>`<div class="rv card"><span>${e.date}<small>${e.source}${e.note?" · "+esc(e.note):""}</small></span><span class="ch st-${e.status[0]}">${e.status}</span><small>${e.time.slice(0,5)}</small></div>`).join("")||"<p>No attendance records yet.</p>"}</div>`}
+function allStudents(){const SB=by(entsAll(),e=>e.studentId);$("#allst").innerHTML=active().map(c=>{const R_=roster(c.id);return R_.length?`<h2>${esc(c.code)} · ${esc(c.name)}</h2><div class="grid">${R_.map((s,i)=>`<div class="stu card" style="--i:${i}"><button class="info" data-sp="${s.id}"><b>${esc(s.name)}</b><small>${stLine(s,SB)}</small></button></div>`).join("")}</div>`:""}).join("")||'<div class="empty"><b>No students yet</b></div>'}
 // export and backup
 const dl=(name,txt,type)=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4e3)};
 const csv=rows=>"\ufeff"+rows.map(r=>r.map(v=>{v=String(v??"");if(/^[=+\-@]/.test(v))v="'"+v;return /[",\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(",")).join("\r\n");
@@ -99,17 +151,25 @@ function exp(kind){let rows;if(kind==="s")rows=[["student_id","student_number","
  if(rows.length<2)return toast("Nothing to export yet.");dl(`qroll-${kind==="s"?"students":"attendance"}-${today()}.csv`,csv(rows),"text/csv;charset=utf-8");toast("CSV downloaded")}
 document.addEventListener("click",e=>{const t=e.target.closest("button"),d=t&&t.dataset,i=t&&t.id;if(!t)return;
  if(d.open){curC=d.open;go("detail")}else if(d.nav){go(d.nav,false)}
+ else if(d.am){an.m=d.am;renderDash()}
+ else if(d.sh){const[k,n]=d.sh.split(":"),v=+n;if(k==="dm")an.day=addM(an.day,v);else if(k==="dw")an.day=addD(an.day,7*v);else if(k==="cm")cd.day=addM(cd.day,v);else if(k==="cw")cd.day=addD(cd.day,7*v);else sp.day=addM(sp.day,v);R[cur]()}
+ else if(d.day){if(cur==="dash"){an.day=d.day;renderDash()}else if(cur==="detail"){cd.day=d.day;renderD()}}
+ else if(d.ct){ct=d.ct;renderD()}else if(d.cm){cm=d.cm;renderC()}else if(d.cv){cv=d.cv;render()}
+ else if(d.sp){sp={id:d.sp,day:today()};curC=db.students[d.sp].classId;go("sprof")}
  else if(d.qr)showQR(d.qr);else if(d.se){editS=d.se;const s=db.students[editS];$("#sftitle").textContent="Edit Student";$("#ssave").textContent="Save Changes";$("#sname").value=s.name;$("#snum").value=s.number;go("sform")}
  else if(d.sr){const s=db.students[d.sr];ask(`Remove ${s.name} from this class? Attendance history is kept.`,()=>{s.status="archived";save("students");renderD();toast("Student removed")})}
  else if(i==="add"){editC=null;$("#ftitle").textContent="Add Class";$("#save").textContent="Save Class";$("#code").value=$("#name").value="";go("form")}
  else if(i==="edit"){editC=curC;const c=db.classes[curC];$("#ftitle").textContent="Edit Class";$("#save").textContent="Save Changes";$("#code").value=c.code;$("#name").value=c.name;go("form")}
- else if(i==="save")submitC();else if(i==="cancel"||i==="scancel"||i==="back")back();
+ else if(i==="save")submitC();else if(i==="cancel"||i==="scancel"||i==="back"||i==="pback")back();
  else if(i==="remove")ask(`Remove ${db.classes[curC].code} from your class list? Its students and attendance history are kept.`,()=>{db.classes[curC].status="archived";save("classes");toast("Class removed");back()});
  else if(i==="sadd"){editS=null;$("#sftitle").textContent="Add Student";$("#ssave").textContent="Save Student";$("#sname").value=$("#snum").value="";go("sform")}
  else if(i==="ssave")submitS();else if(i==="sbegin")begin();else if(i==="srev"){$("#rev").hidden=!$("#rev").hidden}else if(i==="sclose")closeSess();
  else if(i==="xs")exp("s");else if(i==="xa")exp("a");else if(i==="xb"){const f=syncFile();dl(f.name,f.text,"application/json");toast("Sync file saved")}else if(i==="xh"){const f=syncFile(),file=new File([f.text],f.name,{type:"application/json"});navigator.canShare&&navigator.canShare({files:[file]})?navigator.share({files:[file],title:f.name}).catch(()=>{}):(dl(f.name,f.text,"application/json"),toast("Sharing is not supported here. File saved instead."))}
  else if(i==="dyes"){$("#dlg").close();const f=dlgOk;dlgOk=null;f&&f()}else if(i==="dno")$("#dlg").close();else if(i==="qx")$("#qd").close();
- else if(i==="qsh")(async()=>{const n=$("#qdl").download,f=new File([await(await fetch($("#qimg").src)).blob()],n,{type:"image/png"});navigator.canShare&&navigator.canShare({files:[f]})?navigator.share({files:[f],title:n}).catch(()=>{}):toast("Sharing isn't supported here. Use Download PNG.")})()});
+ else if(i==="qdl"){(async()=>{toast("Preparing...");dlb(idName(qs),await toBlob(idPage(qs,3)))})()}
+ else if(i==="qpl"){const a=document.createElement("a");a.href=qrPng("QROLL1:"+qs.id);a.download=idName(qs).replace(".png","_QR-only.png");a.click()}
+ else if(i==="qsh")(async()=>{const n=idName(qs),f=new File([await toBlob(idPage(qs,3))],n,{type:"image/png"});navigator.canShare&&navigator.canShare({files:[f]})?navigator.share({files:[f],title:n}).catch(()=>{}):toast("Sharing isn't supported here. Use Download.")})()
+ else if(i==="xr")sheet("roster","dl");else if(i==="xi")sheet("ids","dl");else if(i==="xpr")sheet("roster","print");else if(i==="xpi")sheet("ids","print")});
 document.addEventListener("change",e=>{const t=e.target;if(t.dataset.r)return setStatus(t.dataset.r,t.value);if(t.id!=="rf"&&t.id!=="mf")return;const f=t.files[0],mode=t.id;t.value="";
  f&&f.text().then(x=>{let j;try{j=JSON.parse(x)}catch(_){}
   if(!j||j.app!=="QRoll"||!j.data||!["classes","students","sessions","entries"].every(k=>j.data[k]&&typeof j.data[k]==="object"))return toast("That file is not a valid QRoll file. Nothing was changed.");

@@ -9,7 +9,7 @@
 <main>
 <section id="v-classes" class="view">
  <div class="glance card"><svg class="mas" viewBox="0 0 120 120" aria-hidden="true"><use href="#mascot"/></svg><div><small id="hello"></small><b>Your day at a glance</b><span id="glance"></span></div><button class="btn primary sm" data-nav="scan">Scan now</button></div>
- <h2>Your classes</h2><div id="list"></div>
+ <div class="seg" id="cseg"><button data-cv="cls" class="on">Classes</button><button data-cv="stu">All students</button></div><div id="list" style="margin-top:14px"></div><div id="allst" hidden></div>
  <div id="empty" class="empty" hidden><svg class="mas" viewBox="0 0 120 120" aria-hidden="true"><use href="#mascot"/></svg><b>No classes yet</b><p>Tap Add Class to create your first class.</p></div>
  <button class="btn primary" id="add"><img src="icons/add.png" alt=""> Add Class</button>
 </section>
@@ -22,9 +22,13 @@
 <section id="v-detail" class="view" hidden>
  <div class="card detail"><span id="dcode"></span><h2 id="dname" class="big"></h2><span id="dcount"></span></div>
  <div class="row"><button class="btn ghost" id="edit"><img src="icons/edit.png" alt=""> Edit</button><button class="btn danger" id="remove"><img src="icons/del.png" alt=""> Remove</button></div>
- <h2>Students</h2><input id="q" type="search" placeholder="Search name or student number">
- <div id="slist"></div><div id="semp" class="empty" hidden><svg class="mas" viewBox="0 0 120 120" aria-hidden="true"><use href="#mascot"/></svg><b>No students yet</b><p>Tap Add Student to build this roster.</p></div>
+ <div class="seg" id="dseg"><button data-ct="stu" class="on">Students</button><button data-ct="cal">Calendar</button></div>
+ <div id="ct-stu"><input id="q" type="search" placeholder="Search name or student number" style="margin-top:14px">
+ <div id="slist" style="margin-top:14px"></div><div id="semp" class="empty" hidden><svg class="mas" viewBox="0 0 120 120" aria-hidden="true"><use href="#mascot"/></svg><b>No students yet</b><p>Tap Add Student to build this roster.</p></div>
  <button class="btn primary" id="sadd"><img src="icons/add.png" alt=""> Add Student</button>
+ <h2>Print and export</h2>
+ <div class="grid2"><button class="btn ghost" id="xr">Roster sheet (PNG)</button><button class="btn ghost" id="xi">All ID cards (ZIP)</button><button class="btn ghost" id="xpr">Print roster</button><button class="btn ghost" id="xpi">Print ID cards</button></div></div>
+ <div id="ct-cal" hidden><div id="ccal"></div></div>
  <button class="btn ghost" id="back"><img src="icons/back.png" alt=""> Back to classes</button>
 </section>
 <section id="v-sform" class="view" hidden>
@@ -52,6 +56,7 @@
   <div id="rev" hidden><div id="rlist"></div><button class="btn danger" id="sclose">Finish and close session</button></div>
  </div>
 </section>
+<section id="v-sprof" class="view" hidden><div id="pbody"></div><button class="btn ghost" id="pback"><img src="icons/back.png" alt=""> Back to class</button></section>
 <section id="v-dash" class="view" hidden>
  <h2 class="big">Dashboard</h2><div id="dbody"></div>
  <h2>Export and backup</h2>
@@ -67,13 +72,13 @@
 </section>
 </main>
 <nav>
-<button data-nav="classes"><img src="icons/classes_off.png" alt="">Classes</button>
-<button data-nav="dash"><img src="icons/dash_off.png" alt="">Dashboard</button>
-<button data-nav="scan"><img src="icons/scan_off.png" alt="">Scan</button>
+<button data-nav="classes"><img src="icons/classes_c.png" alt="">Classes</button>
+<button data-nav="scan" class="ctr" aria-label="Scan"><img src="icons/scan_c.png" alt=""><span class="lbl">Scan</span></button>
+<button data-nav="dash"><img src="icons/dash_c.png" alt="">Dashboard</button>
 </nav>
 <div id="toast" role="status"></div>
 <dialog id="dlg"><p id="dmsg"></p><div class="row"><button class="btn ghost" id="dno">Cancel</button><button class="btn danger" id="dyes"></button></div></dialog>
-<dialog id="qd"><img id="qimg" alt="Student QR code"><p id="qcap"></p><a id="qdl" class="btn primary">Download PNG</a><div class="row"><button class="btn ghost" id="qsh">Share</button><button class="btn ghost" id="qx">Close</button></div></dialog>
+<dialog id="qd"><img id="qimg" alt="Student ID card with QR code"><p id="qcap"></p><button class="btn primary" id="qdl">Download ID card (PNG)</button><div class="row"><button class="btn ghost" id="qsh">Share</button><button class="btn ghost" id="qpl">QR only</button></div><button class="btn ghost" id="qx">Close</button></dialog><div id="pp"></div>
 <svg width="0" height="0" style="position:absolute"><defs><symbol id="mascot" viewBox="0 0 120 120"><g>
 <ellipse cx="46" cy="112" rx="10" ry="5" fill="#E19E4E"/><ellipse cx="74" cy="112" rx="10" ry="5" fill="#E19E4E"/>
 <g transform="rotate(-18 96 98)"><rect x="82" y="84" width="30" height="26" rx="2" fill="#F5EADD" stroke="#613627" stroke-width="3"/><g fill="#613627"><rect x="85" y="87" width="4" height="4"/><rect x="93" y="87" width="4" height="4"/><rect x="101" y="87" width="4" height="4"/><rect x="85" y="103" width="4" height="4"/><rect x="93" y="103" width="4" height="4"/><rect x="101" y="103" width="4" height="4"/></g></g>
@@ -86,5 +91,5 @@
 <path d="M53 68 Q60 76 67 68" fill="none" stroke="#613627" stroke-width="3" stroke-linecap="round"/>
 <path d="M104 18 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z" fill="#FCD8A2" stroke="#613627" stroke-width="2" stroke-linejoin="round"/>
 </g></symbol></defs></svg>
-<script src="lib/qrcode.js"></script><script src="lib/jsQR.js"></script><script src="app.js"></script>
+<script src="lib/zip.js"></script><script src="lib/cards.js"></script><script src="lib/qrcode.js"></script><script src="lib/jsQR.js"></script><script src="app.js"></script>
 </body></html>
